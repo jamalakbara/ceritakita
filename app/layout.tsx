@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Baloo_2, Comic_Neue } from "next/font/google";
 import "./globals.css";
+import NavigationProgress from "@/components/NavigationProgress";
 
 const baloo2 = Baloo_2({
   variable: "--font-heading",
@@ -48,7 +49,10 @@ export default function RootLayout({
       lang="id"
       className={`${baloo2.variable} ${comicNeue.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <NavigationProgress />
+        {children}
+      </body>
     </html>
   );
 }

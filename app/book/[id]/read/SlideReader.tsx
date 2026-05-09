@@ -167,7 +167,7 @@ export default function SlideReader({ book, recommended }: { book: Book; recomme
         {/* Slide Display */}
         <div className="flex-1 flex items-center justify-center relative">
           <div
-            className={`relative w-full h-full max-w-[1200px] max-h-[675px] mx-auto ${
+            className={`relative w-full max-w-[1200px] max-h-[675px] mx-auto ${
               slideDirection === "left"
                 ? "animate-slide-in-right"
                 : slideDirection === "right"
@@ -190,8 +190,10 @@ export default function SlideReader({ book, recommended }: { book: Book; recomme
             {currentSlideData.soundTriggers.map((trigger) => (
               <button
                 key={trigger.id}
-                className={`absolute z-20 group cursor-pointer ${
-                  activeSoundId === trigger.id ? "animate-pop-in" : ""
+                className={`absolute z-20 group cursor-pointer transition-opacity duration-300 ${
+                  activeSoundId === trigger.id
+                    ? "opacity-100 animate-pop-in"
+                    : "opacity-20 hover:opacity-100 focus:opacity-100"
                 }`}
                 style={{
                   left: `${trigger.x}%`,
@@ -219,7 +221,7 @@ export default function SlideReader({ book, recommended }: { book: Book; recomme
                   className={`relative rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm ${
                     activeSoundId === trigger.id
                       ? "w-10 h-10 bg-[#4ECDC4] scale-125"
-                      : "w-5 h-5 bg-white/20 group-hover:w-9 group-hover:h-9 group-hover:bg-[#FFE66D] group-hover:scale-110"
+                      : "w-3 h-3 bg-white/40 group-hover:w-9 group-hover:h-9 group-hover:bg-[#FFE66D] group-hover:scale-110"
                   }`}
                   style={{
                     boxShadow: activeSoundId === trigger.id
@@ -231,44 +233,41 @@ export default function SlideReader({ book, recommended }: { book: Book; recomme
                   {activeSoundId === trigger.id ? (
                     <SpeakerIcon size={18} className="text-white" />
                   ) : (
-                    <SparkleIcon size={12} className="text-white/60 group-hover:text-[#2D1B69] group-hover:w-[18px] group-hover:h-[18px] transition-all duration-300" />
+                    <SparkleIcon size={8} className="text-white/60 group-hover:text-[#2D1B69] group-hover:w-[18px] group-hover:h-[18px] transition-all duration-300" />
                   )}
                 </div>
               </button>
             ))}
           </div>
 
-          {/* Navigation Arrows */}
-          <button
-            className={`absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 clay-button w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-2xl transition-all ${
-              currentSlide <= 0
-                ? "opacity-30 cursor-not-allowed bg-white/20"
-                : "bg-white/90 hover:bg-white text-[#2D1B69]"
-            }`}
-            onClick={() => goToSlide("prev")}
-            disabled={currentSlide <= 0}
-            aria-label="Halaman sebelumnya"
-            id="prev-slide"
-          >
-            <ChevronLeftIcon size={28} />
-          </button>
-
-          <button
-            className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 clay-button w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-2xl bg-white/90 hover:bg-white text-[#2D1B69] transition-all"
-            onClick={() => goToSlide("next")}
-            aria-label="Halaman selanjutnya"
-            id="next-slide"
-          >
-            <ChevronRightIcon size={28} />
-          </button>
         </div>
 
-        {/* Bottom Progress Bar */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 px-4 sm:px-8 pb-4 pt-8 bg-gradient-to-t from-black/40 to-transparent">
-          <Progress
-            value={progress}
-            className="h-2.5 sm:h-3 rounded-full bg-white/20"
-          />
+        {/* Bottom Controls */}
+        <div className="absolute bottom-0 left-0 right-0 z-30 px-3 sm:px-6 pb-4 pt-6 bg-gradient-to-t from-black/40 to-transparent">
+          <div className="flex items-center gap-3">
+            <button
+              className={`clay-button flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                currentSlide <= 0
+                  ? "opacity-30 cursor-not-allowed bg-white/20"
+                  : "bg-white/90 hover:bg-white text-[#2D1B69]"
+              }`}
+              onClick={() => goToSlide("prev")}
+              disabled={currentSlide <= 0}
+              aria-label="Halaman sebelumnya"
+              id="prev-slide"
+            >
+              <ChevronLeftIcon size={20} />
+            </button>
+            <Progress value={progress} className="flex-1 h-2.5 sm:h-3 rounded-full bg-white/20" />
+            <button
+              className="clay-button flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/90 hover:bg-white text-[#2D1B69] transition-all"
+              onClick={() => goToSlide("next")}
+              aria-label="Halaman selanjutnya"
+              id="next-slide"
+            >
+              <ChevronRightIcon size={20} />
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -277,7 +276,7 @@ export default function SlideReader({ book, recommended }: { book: Book; recomme
   // ===== GAME STATE =====
   if (readerState === "game" && book.game) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-[#2D1B69] via-[#4A2D8B] to-[#2D1B69] flex flex-col items-center justify-center p-4 sm:p-8 overflow-y-auto">
+      <div className="fixed inset-0 bg-gradient-to-br from-[#2D1B69] via-[#4A2D8B] to-[#2D1B69] flex flex-col items-center p-4 sm:p-8 py-8 sm:py-12 overflow-y-auto">
         {/* Confetti */}
         {showConfetti && (
           <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden" aria-hidden="true">
@@ -350,7 +349,7 @@ export default function SlideReader({ book, recommended }: { book: Book; recomme
                   id={`game-option-${option.id}`}
                   aria-label={option.label}
                 >
-                  <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-white">
+                  <div className="relative w-full aspect-[3/2] sm:aspect-square rounded-xl overflow-hidden bg-white">
                     <Image
                       src={option.imageUrl}
                       alt={option.label}

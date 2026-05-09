@@ -46,6 +46,16 @@ export default function AdminDashboard({
   books: Book[];
   userEmail: string;
 }) {
+  const [isLogoutPending, startLogoutTransition] = React.useTransition();
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
+  async function handleDelete(bookId: string, title: string) {
+    if (!confirm(`Hapus buku "${title}"?`)) return;
+    setDeletingId(bookId);
+    await deleteBook(bookId);
+    setDeletingId(null);
+  }
+
   const publishedCount = books.filter((b) => b.status === "published").length;
   const totalSlides = books.reduce((sum, b) => sum + b.slides.length, 0);
   const totalSounds = books.reduce(
@@ -82,15 +92,15 @@ export default function AdminDashboard({
               <HomeIcon size={16} />
               <span className="hidden sm:inline">Lihat Situs</span>
             </Link>
-            <form action={logout}>
-              <button
-                type="submit"
-                className="clay-button flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm font-bold rounded-xl hover:bg-white/20 transition-colors"
-                id="admin-logout"
-              >
-                Keluar
-              </button>
-            </form>
+            <button
+              type="button"
+              disabled={isLogoutPending}
+              onClick={() => startLogoutTransition(async () => { await logout(); })}
+              className="clay-button flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-sm font-bold rounded-xl hover:bg-white/20 transition-colors disabled:opacity-60"
+              id="admin-logout"
+            >
+              {isLogoutPending ? "Keluar..." : "Keluar"}
+            </button>
           </div>
         </div>
       </header>
@@ -230,17 +240,14 @@ export default function AdminDashboard({
                     >
                       Preview
                     </Link>
-                    <form action={deleteBook.bind(null, book.id)}>
-                      <button
-                        type="submit"
-                        className="clay-button px-3 py-2 text-xs font-bold text-[#FF4757] bg-[#FF4757]/10 rounded-lg hover:bg-[#FF4757]/20 transition-colors"
-                        onClick={(e) => {
-                          if (!confirm(`Hapus buku "${book.title}"?`)) e.preventDefault();
-                        }}
-                      >
-                        <XIcon size={14} />
-                      </button>
-                    </form>
+                    <button
+                      type="button"
+                      disabled={deletingId === book.id}
+                      onClick={() => handleDelete(book.id, book.title)}
+                      className="clay-button px-3 py-2 text-xs font-bold text-[#FF4757] bg-[#FF4757]/10 rounded-lg hover:bg-[#FF4757]/20 transition-colors disabled:opacity-60"
+                    >
+                      <XIcon size={14} />
+                    </button>
                   </div>
                 </div>
               );

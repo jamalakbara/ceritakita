@@ -19,6 +19,7 @@ interface BookRow {
 
 export default function EditBookForm({ book }: { book: BookRow }) {
   const [isPending, startTransition] = useTransition();
+  const [isStatusPending, startStatusTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -90,23 +91,23 @@ export default function EditBookForm({ book }: { book: BookRow }) {
       {/* Publish / Unpublish */}
       <div className="border-t border-[#F0E6FF] pt-5 flex flex-wrap gap-3">
         {book.status !== "published" ? (
-          <form action={publishBook.bind(null, book.id)}>
-            <button
-              type="submit"
-              className="clay-button px-5 py-2.5 bg-[#4ECDC4] text-white font-bold rounded-xl text-sm"
-            >
-              Publish Buku
-            </button>
-          </form>
+          <button
+            type="button"
+            disabled={isStatusPending}
+            onClick={() => startStatusTransition(async () => { await publishBook(book.id); })}
+            className="clay-button px-5 py-2.5 bg-[#4ECDC4] text-white font-bold rounded-xl text-sm disabled:opacity-60"
+          >
+            {isStatusPending ? "Memproses..." : "Publish Buku"}
+          </button>
         ) : (
-          <form action={unpublishBook.bind(null, book.id)}>
-            <button
-              type="submit"
-              className="clay-button px-5 py-2.5 bg-[#FFE66D] text-[#2D1B69] font-bold rounded-xl text-sm"
-            >
-              Unpublish
-            </button>
-          </form>
+          <button
+            type="button"
+            disabled={isStatusPending}
+            onClick={() => startStatusTransition(async () => { await unpublishBook(book.id); })}
+            className="clay-button px-5 py-2.5 bg-[#FFE66D] text-[#2D1B69] font-bold rounded-xl text-sm disabled:opacity-60"
+          >
+            {isStatusPending ? "Memproses..." : "Unpublish"}
+          </button>
         )}
 
         <span className="ml-auto">
