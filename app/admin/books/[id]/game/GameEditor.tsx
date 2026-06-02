@@ -28,7 +28,8 @@ export default function GameEditor({
   const [successMsg, setSuccessMsg] = useState("");
   const [fileError, setFileError] = useState<string | null>(null);
 
-  const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB, same as other file inputs
+  const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB per file
+  const MAX_TOTAL_BYTES = 18 * 1024 * 1024; // 18MB total (4 images combined, under 20MB server limit)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,6 +37,7 @@ export default function GameEditor({
     setSuccessMsg("");
     setFileError(null);
 
+    let totalBytes = 0;
     for (let i = 0; i < 4; i++) {
       const file = formData.get(`option_${i}_image`) as File | null;
       if (file && file.size > MAX_IMAGE_BYTES) {
@@ -46,7 +48,15 @@ export default function GameEditor({
       }
       if (!file || file.size === 0) {
         formData.delete(`option_${i}_image`);
+      } else {
+        totalBytes += file.size;
       }
+    }
+    if (totalBytes > MAX_TOTAL_BYTES) {
+      setFileError(
+        `Total ukuran gambar terlalu besar (${(totalBytes / 1024 / 1024).toFixed(1)}MB). Maks. 18MB total. Kompres gambar terlebih dahulu.`
+      );
+      return;
     }
 
     // Pass bookId as a FormData field — avoids Next.js 16 mixed (string, FormData) arg encoding bug
