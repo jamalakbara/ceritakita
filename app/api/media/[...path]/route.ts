@@ -26,7 +26,7 @@ export async function GET(
 
     const bytes = await (Body as import("@smithy/types").SdkStreamMixin).transformToByteArray();
 
-    return new NextResponse(bytes, {
+    return new NextResponse(bytes.buffer as ArrayBuffer, {
       headers: {
         "Content-Type": ContentType ?? "application/octet-stream",
         ...(ContentLength ? { "Content-Length": String(ContentLength) } : {}),
