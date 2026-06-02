@@ -57,7 +57,7 @@ export default function GameEditor({
       try {
         const result = await saveGame(formData);
         if (result && "error" in result) {
-          setError(result.error);
+          setError(result.error ?? "Terjadi kesalahan.");
         } else {
           setSuccessMsg("Game berhasil disimpan!");
           setTimeout(() => setSuccessMsg(""), 3000);
