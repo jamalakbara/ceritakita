@@ -26,11 +26,26 @@ export default function GameEditor({
 }) {
   const [isPending, startTransition] = useTransition();
   const [successMsg, setSuccessMsg] = useState("");
+  const [fileError, setFileError] = useState<string | null>(null);
+
+  const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB, same as other file inputs
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     setSuccessMsg("");
+    setFileError(null);
+
+    for (let i = 0; i < 4; i++) {
+      const file = formData.get(`option_${i}_image`) as File | null;
+      if (file && file.size > MAX_IMAGE_BYTES) {
+        setFileError(
+          `Gambar Pilihan ${i + 1} terlalu besar (${(file.size / 1024 / 1024).toFixed(1)}MB). Maks. 10MB per gambar.`
+        );
+        return;
+      }
+    }
+
     startTransition(async () => {
       const result = await saveGame(bookId, formData);
       if (result && "error" in result) {
@@ -77,6 +92,11 @@ export default function GameEditor({
         </div>
       </div>
 
+      {fileError && (
+        <div className="px-4 py-3 rounded-xl bg-[#FF4757]/10 text-[#FF4757] font-bold text-sm">
+          {fileError}
+        </div>
+      )}
       {successMsg && (
         <div className="px-4 py-3 rounded-xl bg-[#4ECDC4]/20 text-[#4ECDC4] font-bold text-sm">
           {successMsg}
