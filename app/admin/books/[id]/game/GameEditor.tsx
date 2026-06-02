@@ -63,12 +63,16 @@ export default function GameEditor({
     formData.set("bookId", bookId);
 
     startTransition(async () => {
-      const result = await saveGame(formData);
-      if (result && "error" in result) {
-        alert(result.error);
-      } else {
-        setSuccessMsg("Game berhasil disimpan!");
-        setTimeout(() => setSuccessMsg(""), 3000);
+      try {
+        const result = await saveGame(formData);
+        if (result && "error" in result) {
+          setFileError(result.error);
+        } else {
+          setSuccessMsg("Game berhasil disimpan!");
+          setTimeout(() => setSuccessMsg(""), 3000);
+        }
+      } catch {
+        setFileError("Gagal menyimpan game. Coba kompres gambar atau kurangi ukuran file.");
       }
     });
   }
