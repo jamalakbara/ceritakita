@@ -29,7 +29,7 @@ export default function GameEditor({
   const [fileError, setFileError] = useState<string | null>(null);
 
   const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB per file
-  const MAX_TOTAL_BYTES = 18 * 1024 * 1024; // 18MB total (4 images combined, under 20MB server limit)
+  const MAX_TOTAL_BYTES = 9 * 1024 * 1024;  // 9MB total — must stay under proxyClientMaxBodySize
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -54,7 +54,7 @@ export default function GameEditor({
     }
     if (totalBytes > MAX_TOTAL_BYTES) {
       setFileError(
-        `Total ukuran gambar terlalu besar (${(totalBytes / 1024 / 1024).toFixed(1)}MB). Maks. 18MB total. Kompres gambar terlebih dahulu.`
+        `Total ukuran gambar terlalu besar (${(totalBytes / 1024 / 1024).toFixed(1)}MB). Maks. 9MB total untuk 4 gambar. Kompres gambar terlebih dahulu.`
       );
       return;
     }
