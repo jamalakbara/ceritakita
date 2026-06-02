@@ -3,9 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: '20mb',
+      bodySizeLimit: '10mb',
     },
-    proxyClientMaxBodySize: '20mb',
+    proxyClientMaxBodySize: '10mb',
   },
   images: {
     remotePatterns: [
