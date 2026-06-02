@@ -235,13 +235,23 @@ export async function deleteSoundTrigger(id: string, bookId: string) {
 
 // === Game CRUD ===
 
+export async function uploadGameImage(
+  formData: FormData
+): Promise<{ url?: string; error?: string }> {
+  await requireAuth();
+  const file = formData.get("image") as File | null;
+  if (!file || file.size === 0) return { error: "No file" };
+  if (file.size > 10 * 1024 * 1024) return { error: "File terlalu besar (maks. 10MB)" };
+  const url = await uploadFile(file, "slides");
+  return { url };
+}
+
 export async function saveGame(formData: FormData) {
   const supabase = await requireAuth();
 
   const bookId = formData.get("bookId") as string;
   const question = formData.get("question") as string;
 
-  // Upsert mini_game
   const { data: gameData, error: gameError } = await supabase
     .from("mini_games")
     .upsert({ book_id: bookId, question }, { onConflict: "book_id" })
@@ -252,22 +262,13 @@ export async function saveGame(formData: FormData) {
 
   const gameId = gameData.id;
 
-  // Delete old options
   await supabase.from("game_options").delete().eq("game_id", gameId);
 
-  // Insert new options
   for (let i = 0; i < 4; i++) {
     const label = formData.get(`option_${i}_label`) as string;
-    const isCorrect = formData.get("correct_option") === String(i);
-    const imageFile = formData.get(`option_${i}_image`) as File | null;
-    const existingUrl = formData.get(`option_${i}_existing_url`) as string | null;
-
-    let imageUrl = existingUrl ?? "";
-    if (imageFile && imageFile.size > 0) {
-      imageUrl = await uploadFile(imageFile, "slides");
-    }
-
     if (!label) continue;
+    const isCorrect = formData.get("correct_option") === String(i);
+    const imageUrl = (formData.get(`option_${i}_url`) as string) ?? "";
 
     await supabase.from("game_options").insert({
       game_id: gameId,
