@@ -44,6 +44,10 @@ export default function GameEditor({
         );
         return;
       }
+      // Remove zero-byte file entries — proxy body-clone in Next.js 16 mis-parses empty file parts
+      if (!file || file.size === 0) {
+        formData.delete(`option_${i}_image`);
+      }
     }
 
     startTransition(async () => {
