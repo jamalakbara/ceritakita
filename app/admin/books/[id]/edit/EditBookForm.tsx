@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import Image from "next/image";
 import { updateBook, deleteBook, publishBook, unpublishBook } from "@/app/admin/actions";
 
@@ -17,13 +17,22 @@ interface BookRow {
   status: "draft" | "published" | "unpublished";
 }
 
+const MAX_COVER_BYTES = 10 * 1024 * 1024; // 10MB
+
 export default function EditBookForm({ book }: { book: BookRow }) {
   const [isPending, startTransition] = useTransition();
   const [isStatusPending, startStatusTransition] = useTransition();
+  const [fileError, setFileError] = useState<string | null>(null);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const cover = formData.get("cover") as File | null;
+    if (cover && cover.size > MAX_COVER_BYTES) {
+      setFileError(`File terlalu besar (${(cover.size / 1024 / 1024).toFixed(1)}MB). Maks. 10MB.`);
+      return;
+    }
+    setFileError(null);
     startTransition(async () => {
       await updateBook(book.id, formData);
     });
@@ -74,8 +83,10 @@ export default function EditBookForm({ book }: { book: BookRow }) {
             name="cover"
             type="file"
             accept="image/png,image/jpeg,image/webp"
+            onChange={() => setFileError(null)}
             className="w-full text-sm text-[#7C6FAA] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[#FF6B6B] file:text-white hover:file:bg-[#FF4757] file:cursor-pointer"
           />
+          {fileError && <p className="mt-1 text-sm text-red-500">{fileError}</p>}
           <p className="text-xs text-[#7C6FAA] mt-1">Biarkan kosong untuk tetap menggunakan cover saat ini.</p>
         </div>
 

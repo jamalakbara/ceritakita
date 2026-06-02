@@ -182,15 +182,19 @@ export default function AdminDashboard({
                   id={`admin-book-${book.id}`}
                 >
                   {/* Cover Thumbnail */}
-                  <div className="relative w-full sm:w-24 aspect-[16/10] sm:aspect-[16/10] rounded-xl overflow-hidden flex-shrink-0">
-                    <Image
-                      src={book.coverUrl}
-                      alt={book.title}
-                      fill
-                      className="object-cover"
-                      sizes="96px"
-                      unoptimized
-                    />
+                  <div className="relative w-full sm:w-24 aspect-[16/10] sm:aspect-[16/10] rounded-xl overflow-hidden flex-shrink-0 bg-[#FFF0E6]">
+                    {book.coverUrl ? (
+                      <Image
+                        src={book.coverUrl}
+                        alt={book.title}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#C4A882] text-2xl">📖</div>
+                    )}
                   </div>
 
                   {/* Info */}

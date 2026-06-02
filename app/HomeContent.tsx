@@ -102,14 +102,19 @@ function BookCard({
           <div
             className={`absolute inset-0 bg-gradient-to-br ${colorAccents[index % 5]} opacity-80`}
           />
-          <Image
-            src={book.coverUrl}
-            alt={`Cover buku ${book.title}`}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            unoptimized
-          />
+          {book.coverUrl && (
+            <Image
+              src={book.coverUrl}
+              alt={`Cover buku ${book.title}`}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              unoptimized
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+          )}
           {/* Read time badge */}
           <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-bold text-[#2D1B69] shadow-md">
             <ClockIcon size={14} />

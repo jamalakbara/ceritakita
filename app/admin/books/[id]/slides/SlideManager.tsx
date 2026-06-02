@@ -23,14 +23,16 @@ interface Slide {
 export default function SlideManager({ bookId, slides }: { bookId: string; slides: Slide[] }) {
   const [isPending, startTransition] = useTransition();
   const [expandedSlide, setExpandedSlide] = useState<string | null>(null);
+  const [slideError, setSlideError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleAddSlide(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const file = formData.get("image") as File;
-    if (!file || file.size === 0) return alert("Pilih file gambar terlebih dahulu.");
-    if (file.size > 3 * 1024 * 1024) return alert("File terlalu besar. Maks. 3MB.");
+    if (!file || file.size === 0) { setSlideError("Pilih file gambar terlebih dahulu."); return; }
+    if (file.size > 10 * 1024 * 1024) { setSlideError(`File terlalu besar (${(file.size / 1024 / 1024).toFixed(1)}MB). Maks. 10MB.`); return; }
+    setSlideError(null);
     startTransition(async () => {
       await addSlide(bookId, formData);
     });
@@ -138,6 +140,7 @@ export default function SlideManager({ bookId, slides }: { bookId: string; slide
             type="file"
             accept="image/png,image/jpeg,image/webp"
             required
+            onChange={() => setSlideError(null)}
             className="flex-1 text-sm text-[#7C6FAA] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[#4ECDC4] file:text-white hover:file:bg-[#3DBDB5] file:cursor-pointer"
           />
           <button
@@ -148,7 +151,8 @@ export default function SlideManager({ bookId, slides }: { bookId: string; slide
             {isPending ? "Mengupload..." : "Upload Slide"}
           </button>
         </form>
-        <p className="text-xs text-[#7C6FAA] mt-2">PNG/JPG/WebP, maks. 3MB. Resolusi 1920×1080 (16:9) disarankan.</p>
+        {slideError && <p className="mt-2 text-sm text-red-500">{slideError}</p>}
+        <p className="text-xs text-[#7C6FAA] mt-2">PNG/JPG/WebP, maks. 10MB. Resolusi 1920×1080 (16:9) disarankan.</p>
       </div>
     </div>
   );
@@ -157,6 +161,7 @@ export default function SlideManager({ bookId, slides }: { bookId: string; slide
 function SoundTriggerEditor({ slide, bookId }: { slide: Slide; bookId: string }) {
   const [isPending, startTransition] = useTransition();
   const [pendingPos, setPendingPos] = useState<{ x: number; y: number } | null>(null);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
 
   function handleImageClick(e: React.MouseEvent<HTMLDivElement>) {
@@ -172,8 +177,9 @@ function SoundTriggerEditor({ slide, bookId }: { slide: Slide; bookId: string })
     if (!pendingPos) return;
     const formData = new FormData(e.currentTarget);
     const audio = formData.get("audio") as File;
-    if (!audio || audio.size === 0) return alert("Pilih file MP3 terlebih dahulu.");
-    if (audio.size > 1024 * 1024) return alert("File audio terlalu besar. Maks. 1MB.");
+    if (!audio || audio.size === 0) { setAudioError("Pilih file MP3 terlebih dahulu."); return; }
+    if (audio.size > 1024 * 1024) { setAudioError(`File audio terlalu besar (${(audio.size / 1024).toFixed(0)}KB). Maks. 1MB.`); return; }
+    setAudioError(null);
 
     startTransition(async () => {
       await addSoundTrigger(slide.id, bookId, pendingPos.x, pendingPos.y, formData);
@@ -263,8 +269,10 @@ function SoundTriggerEditor({ slide, bookId }: { slide: Slide; bookId: string })
               type="file"
               accept="audio/mpeg,audio/mp3"
               required
+              onChange={() => setAudioError(null)}
               className="w-full text-xs text-[#7C6FAA] file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#4ECDC4] file:text-white file:cursor-pointer"
             />
+            {audioError && <p className="mt-1 text-xs text-red-500">{audioError}</p>}
           </div>
           <div className="flex gap-2">
             <button

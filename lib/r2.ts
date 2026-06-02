@@ -22,7 +22,7 @@ export async function uploadToR2(
       ContentType: contentType,
     })
   );
-  return `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${key}`;
+  return `/api/media/${key}`;
 }
 
 export function r2Key(folder: "covers" | "slides" | "audio", ext: string): string {
