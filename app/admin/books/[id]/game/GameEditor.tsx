@@ -44,14 +44,16 @@ export default function GameEditor({
         );
         return;
       }
-      // Remove zero-byte file entries — proxy body-clone in Next.js 16 mis-parses empty file parts
       if (!file || file.size === 0) {
         formData.delete(`option_${i}_image`);
       }
     }
 
+    // Pass bookId as a FormData field — avoids Next.js 16 mixed (string, FormData) arg encoding bug
+    formData.set("bookId", bookId);
+
     startTransition(async () => {
-      const result = await saveGame(bookId, formData);
+      const result = await saveGame(formData);
       if (result && "error" in result) {
         alert(result.error);
       } else {

@@ -235,12 +235,10 @@ export async function deleteSoundTrigger(id: string, bookId: string) {
 
 // === Game CRUD ===
 
-export async function saveGame(
-  bookId: string,
-  formData: FormData
-) {
+export async function saveGame(formData: FormData) {
   const supabase = await requireAuth();
 
+  const bookId = formData.get("bookId") as string;
   const question = formData.get("question") as string;
 
   // Upsert mini_game
